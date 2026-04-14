@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  /* Page backgrounds */
+  --color-cal-bg-base: #111111;
+  --color-cal-bg-card: #18181b;
+  /* zinc-900 */
+  --color-cal-bg-subtle: #27272a;
+  /* zinc-800 */
+  --color-cal-bg-emphasis: #3f3f46;
+  /* zinc-700 */
+  --color-cal-bg-inverted: #ffffff;
+
+  /* Text */
+  --color-cal-text-primary: #ffffff;
+  --color-cal-text-default: #e4e4e7;
+  /* zinc-200 */
+  --color-cal-text-muted: #a1a1aa;
+  /* zinc-400 */
+  --color-cal-text-dimmed: #71717a;
+  /* zinc-500 */
+  --color-cal-text-inverted: #000000;
+
+  /* Borders */
+  --color-cal-border: #27272a;
+  /* zinc-800 */
+  --color-cal-border-emphasis: #3f3f46;
+  /* zinc-700 */
+
+  /* Brand */
+  --color-cal-brand: #ffffff;
+  --color-cal-brand-text: #000000;
+
+  /* Semantic */
+  --color-cal-success: #22c55e;
+  --color-cal-success-subtle: #14532d;
+  --color-cal-error: #ef4444;
+  --color-cal-info: #3b82f6;
+
+  /* Sidebar */
+  --color-cal-sidebar-active: #27272a;
+
+  /* Radius */
+  --radius-cal-sm: 6px;
+  --radius-cal-md: 8px;
+  --radius-cal-lg: 12px;
+
+  /* Font */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-cal-bg-base);
+  color: var(--color-cal-text-default);
+  min-height: 100vh;
+  line-height: normal;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-cal-bg-emphasis);
+  border-radius: 99px;
+}
+
+/* Card utility */
+@utility cal-card {
+  background-color: var(--color-cal-bg-card);
+  border: 1px solid var(--color-cal-border);
+  border-radius: var(--radius-cal-md);
+}
+
+/* Base Input */
+@utility cal-input {
+  background-color: transparent;
+  color: var(--color-cal-text-primary);
+  border: 1px solid var(--color-cal-border-emphasis);
+  border-radius: var(--radius-cal-sm);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: var(--color-cal-text-primary);
+    box-shadow: 0 0 0 1px var(--color-cal-text-primary);
+  }
+
+  &::placeholder {
+    color: var(--color-cal-text-dimmed);
+  }
+}
