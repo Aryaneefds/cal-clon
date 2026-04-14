@@ -39,7 +39,7 @@ export function BookingForm({
                     label="Your name"
                     required
                     autoFocus
-                    placeholder="Aryan Yadav"
+                    placeholder="Srijan Verma"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                 />
@@ -47,7 +47,7 @@ export function BookingForm({
                     label="Email address"
                     type="email"
                     required
-                    placeholder="aryan@example.com"
+                    placeholder="srijan@example.com"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                 />

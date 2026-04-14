@@ -1,8 +1,8 @@
 import type { EventType, Availability, Booking, User } from '../types';
 
 export const defaultUser: User = {
-    name: 'Aryan Yadav',
-    username: 'aryan',
+    name: 'Srijan Verma',
+    username: 'srijan',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 };
 
@@ -52,8 +52,8 @@ export const seedBookings: Booking[] = [
         startTime: '10:00',
         endTime: '10:15',
         duration: 15,
-        bookerName: 'Aryan Yadav',
-        bookerEmail: 'aryanyadav830670@gmail.com',
+        bookerName: 'Srijan Verma',
+        bookerEmail: 'srijan@example.com',
         status: 'upcoming',
         createdAt: '2026-04-10T08:00:00Z',
     },
@@ -65,8 +65,8 @@ export const seedBookings: Booking[] = [
         startTime: '13:00',
         endTime: '13:30',
         duration: 30,
-        bookerName: 'Aryan Yadav',
-        bookerEmail: 'aryanyadav830670@gmail.com',
+        bookerName: 'Srijan Verma',
+        bookerEmail: 'srijan@example.com',
         status: 'rescheduled',
         createdAt: '2026-04-10T09:30:00Z',
     },

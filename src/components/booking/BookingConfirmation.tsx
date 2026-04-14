@@ -46,7 +46,7 @@ export function BookingConfirmation({
                     <div className="space-y-6 border-t border-cal-border pt-8">
                         <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
                             <div className="text-2xl font-medium text-cal-text-primary">What</div>
-                            <div className="text-[1.05rem] leading-8 text-cal-text-default">{eventType.title} between {bookerName} and Aryan Yadav</div>
+                            <div className="text-[1.05rem] leading-8 text-cal-text-default">{eventType.title} between {bookerName} and Srijan Verma</div>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
                             <div className="text-2xl font-medium text-cal-text-primary">When</div>
@@ -60,9 +60,9 @@ export function BookingConfirmation({
                             <div className="text-2xl font-medium text-cal-text-primary">Who</div>
                             <div className="space-y-3 text-[1.05rem] leading-8 text-cal-text-default">
                                 <div>
-                                    Aryan Yadav <span className="ml-2 rounded-md bg-[#243b87] px-2 py-1 text-xs font-semibold text-white">Host</span>
+                                    Srijan Verma <span className="ml-2 rounded-md bg-[#243b87] px-2 py-1 text-xs font-semibold text-white">Host</span>
                                     <br />
-                                    aryanyadav830670@gmail.com
+                                    srijan@example.com
                                 </div>
                                 <div>
                                     {bookerName}
