@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
+import { Button } from '../ui/Button';
 import { cn, generateTimeSlots, formatTime } from '../../lib/utils';
 import type { TimeRange, Booking } from '../../types';
 
@@ -9,6 +10,7 @@ interface TimeSlotPickerProps {
     duration: number;
     existingBookings: Booking[];
     onSelectSlot: (time: string) => void;
+    onContinue: () => void;
     selectedSlot?: string | null;
 }
 
@@ -18,44 +20,40 @@ export function TimeSlotPicker({
     duration,
     existingBookings,
     onSelectSlot,
+    onContinue,
     selectedSlot,
 }: TimeSlotPickerProps) {
     const [use24h, setUse24h] = useState(false);
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
     const slots = useMemo(
-        () => generateTimeSlots(dateStr, timeRanges, duration, existingBookings),
+        () => generateTimeSlots(dateStr, timeRanges, duration, existingBookings).filter((slot) => slot.available),
         [dateStr, timeRanges, duration, existingBookings]
     );
 
-    const availableSlots = slots.filter((s) => s.available);
-
     return (
-        <div className="w-full flex md:pl-8 md:border-l border-cal-border flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6 px-1">
-                <h3 className="text-base font-semibold text-cal-text-primary tracking-tight">
-                    {format(selectedDate, 'EEEE, MMM dd')}
+        <div className="flex h-full w-full flex-col border-cal-border md:border-l md:pl-8">
+            <div className="mb-6 flex items-center justify-between">
+                <h3 className="text-[1.65rem] font-semibold tracking-tight text-cal-text-primary">
+                    {format(selectedDate, 'EEE d')}
                 </h3>
-                <div className="flex items-center bg-cal-bg-subtle/50 rounded-md p-0.5 shadow-sm border border-cal-border">
+                <div className="inline-flex items-center rounded-xl border border-cal-border bg-cal-bg-subtle p-1">
                     <button
+                        type="button"
                         onClick={() => setUse24h(false)}
                         className={cn(
-                            'px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer rounded-[4px]',
-                            !use24h
-                                ? 'bg-cal-bg-emphasis text-cal-text-primary shadow-sm'
-                                : 'text-cal-text-muted hover:text-cal-text-primary'
+                            'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                            !use24h ? 'bg-white text-cal-text-inverted' : 'text-cal-text-muted'
                         )}
                     >
                         12h
                     </button>
                     <button
+                        type="button"
                         onClick={() => setUse24h(true)}
                         className={cn(
-                            'px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer rounded-[4px]',
-                            use24h
-                                ? 'bg-cal-bg-emphasis text-cal-text-primary shadow-sm'
-                                : 'text-cal-text-muted hover:text-cal-text-primary'
+                            'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
+                            use24h ? 'bg-white text-cal-text-inverted' : 'text-cal-text-muted'
                         )}
                     >
                         24h
@@ -63,34 +61,35 @@ export function TimeSlotPicker({
                 </div>
             </div>
 
-            {/* Slots */}
-            <div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
-                {availableSlots.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center h-full">
-                        <p className="text-sm font-medium text-cal-text-muted">No slots available</p>
+            <div className="flex max-h-[500px] flex-1 flex-col gap-3 overflow-y-auto pr-1">
+                {slots.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-cal-border bg-cal-bg-subtle/60 px-4 py-8 text-center text-sm text-cal-text-muted">
+                        No slots available for this day.
                     </div>
                 ) : (
-                    availableSlots.map((slot) => (
-                        <button
-                            key={slot.time}
-                            onClick={() => onSelectSlot(slot.time)}
-                            className={cn(
-                                'w-full flex items-center justify-center gap-2.5 py-3 rounded-lg border transition-all duration-200 cursor-pointer text-sm font-semibold tracking-tight',
-                                selectedSlot === slot.time
-                                    ? 'bg-cal-text-primary border-cal-text-primary text-cal-text-inverted shadow-[0_4px_14px_rgba(255,255,255,0.1)]'
-                                    : 'bg-transparent border-white/10 text-cal-text-primary hover:bg-white/5 hover:border-white/20'
-                            )}
-                        >
-                            <span
+                    slots.map((slot) => (
+                        <div key={slot.time} className="flex items-stretch gap-3">
+                            <button
+                                type="button"
+                                onClick={() => onSelectSlot(slot.time)}
                                 className={cn(
-                                    "w-2 h-2 rounded-full flex-shrink-0 transition-colors",
-                                    selectedSlot === slot.time ? "bg-cal-bg-base" : "bg-cal-success"
+                                    'flex-1 rounded-2xl border px-4 py-3 text-base font-medium transition-all',
+                                    selectedSlot === slot.time
+                                        ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 text-cal-text-primary'
+                                        : 'border-cal-border text-cal-text-primary hover:border-white/20 hover:bg-white/5'
                                 )}
-                            />
-                            <span>
-                                {formatTime(slot.time, use24h)}
-                            </span>
-                        </button>
+                            >
+                                <span className="inline-flex items-center gap-2">
+                                    <span className="h-2.5 w-2.5 rounded-full bg-[#16d9a3]" />
+                                    {formatTime(slot.time, use24h)}
+                                </span>
+                            </button>
+                            {selectedSlot === slot.time && (
+                                <Button className="h-auto px-5" onClick={onContinue}>
+                                    Next
+                                </Button>
+                            )}
+                        </div>
                     ))
                 )}
             </div>

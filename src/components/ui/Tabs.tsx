@@ -11,30 +11,35 @@ interface TabsProps {
     activeTab: string;
     onChange: (tabId: string) => void;
     className?: string;
+    counts?: Record<string, number>;
 }
 
-export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
+export function Tabs({ tabs, activeTab, onChange, className, counts }: TabsProps) {
     return (
-        <div className={cn('flex items-center gap-0.5 border-b border-cal-border', className)}>
+        <div className={cn('inline-flex items-center gap-1 rounded-xl border border-cal-border bg-cal-bg-subtle/70 p-1', className)}>
             {tabs.map((tab) => (
                 <button
                     key={tab.id}
                     onClick={() => onChange(tab.id)}
                     className={cn(
-                        'px-4 py-2.5 text-[13px] font-medium transition-all duration-200 relative cursor-pointer rounded-t-[var(--radius-cal-sm)]',
+                        'rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all duration-200 relative cursor-pointer',
                         activeTab === tab.id
-                            ? 'text-cal-text-primary'
-                            : 'text-cal-text-muted hover:text-cal-text-default hover:bg-cal-bg-subtle/50'
+                            ? 'bg-white text-cal-text-inverted shadow-sm'
+                            : 'text-cal-text-muted hover:text-cal-text-default hover:bg-white/5'
                     )}
                 >
                     {tab.label}
-                    {tab.count !== undefined && (
-                        <span className="ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full bg-cal-bg-emphasis text-cal-text-muted">
-                            {tab.count}
+                    {(tab.count !== undefined || counts?.[tab.id] !== undefined) && (
+                        <span
+                            className={cn(
+                                'ml-1.5 rounded-full px-1.5 py-0.5 text-[11px]',
+                                activeTab === tab.id
+                                    ? 'bg-black/10 text-cal-text-inverted'
+                                    : 'bg-white/6 text-cal-text-muted'
+                            )}
+                        >
+                            {tab.count ?? counts?.[tab.id]}
                         </span>
-                    )}
-                    {activeTab === tab.id && (
-                        <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-cal-text-primary rounded-full" />
                     )}
                 </button>
             ))}

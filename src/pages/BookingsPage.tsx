@@ -1,81 +1,77 @@
+import { SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
-import { Search } from 'lucide-react';
 import { useBookingStore } from '../stores/bookingStore';
 import { BookingRow } from '../components/bookings/BookingRow';
 import { Tabs } from '../components/ui/Tabs';
-import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { Shell } from '../components/layout/Shell';
+import { PageHeader } from '../components/layout/PageHeader';
 
 const TABS = [
-    { id: 'upcoming', label: 'Upcoming', filter: (b: any) => b.status === 'upcoming' },
-    { id: 'past', label: 'Past', filter: (b: any) => b.status === 'past' },
-    { id: 'cancelled', label: 'Cancelled', filter: (b: any) => b.status === 'cancelled' },
+    { id: 'upcoming', label: 'Upcoming', filter: (status: string) => status === 'upcoming' },
+    { id: 'unconfirmed', label: 'Unconfirmed', filter: () => false },
+    { id: 'recurring', label: 'Recurring', filter: () => false },
+    { id: 'past', label: 'Past', filter: (status: string) => status === 'past' },
+    { id: 'cancelled', label: 'Cancelled', filter: (status: string) => status === 'cancelled' || status === 'rescheduled' },
 ];
 
 export function BookingsPage() {
     const [activeTab, setActiveTab] = useState('upcoming');
-    const [search, setSearch] = useState('');
     const { bookings } = useBookingStore();
 
-    const activeFilter = TABS.find((t) => t.id === activeTab)?.filter;
-    let filteredBookings = bookings.filter(activeFilter || Boolean);
+    const filteredBookings = bookings.filter((booking) => {
+        const active = TABS.find((tab) => tab.id === activeTab);
+        return active ? active.filter(booking.status) : true;
+    });
 
-    if (search) {
-        const s = search.toLowerCase();
-        filteredBookings = filteredBookings.filter(
-            (b) =>
-                b.bookerName.toLowerCase().includes(s) ||
-                b.bookerEmail.toLowerCase().includes(s) ||
-                b.eventTitle.toLowerCase().includes(s)
-        );
-    }
-
-    // Calculate counts
-    const counts = TABS.reduce((acc, tab) => {
-        acc[tab.id] = bookings.filter(tab.filter).length;
+    const counts = TABS.reduce<Record<string, number>>((acc, tab) => {
+        acc[tab.id] = bookings.filter((booking) => tab.filter(booking.status)).length;
         return acc;
-    }, {} as Record<string, number>);
+    }, {});
 
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-cal-text-primary tracking-tight mb-2">Bookings</h1>
-                <p className="text-sm text-cal-text-muted">
-                    See upcoming and past events booked through your event type links.
-                </p>
-            </div>
+        <Shell>
+            <PageHeader
+                title="Bookings"
+                subtitle="See upcoming and past events booked through your event type links."
+            />
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                <div className="w-full sm:w-auto relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-cal-text-dimmed w-4 h-4" />
-                    <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search bookings..."
-                        className="pl-9 !w-full sm:!w-[280px]"
-                    />
+            <div className="mb-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} counts={counts} className="w-full overflow-auto xl:w-auto" />
+                <div className="flex items-center justify-between gap-3 xl:justify-end">
+                    <Button variant="outline" icon={<SlidersHorizontal size={15} />}>
+                        Filter
+                    </Button>
+                    <Button variant="outline">
+                        Saved filters
+                    </Button>
                 </div>
-
-                <Tabs tabs={TABS} counts={counts} activeTab={activeTab} onChange={setActiveTab} />
             </div>
 
-            {filteredBookings.length === 0 ? (
-                <Card className="text-center py-20 bg-cal-bg-card rounded-xl border border-cal-border/50 border-dashed">
-                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Search className="text-cal-text-muted w-6 h-6" />
+            <Card noPadding className="overflow-hidden">
+                <div className="border-b border-cal-border px-6 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-cal-text-muted">
+                    Next
+                </div>
+                {filteredBookings.length === 0 ? (
+                    <div className="px-6 py-16 text-center text-sm text-cal-text-muted">
+                        No bookings found for this filter.
                     </div>
-                    <h3 className="text-cal-text-primary font-medium mb-1">No bookings found</h3>
-                    <p className="text-sm text-cal-text-muted">
-                        {search ? 'Try adjusting your search query.' : 'Share your links to get your first booking.'}
-                    </p>
-                </Card>
-            ) : (
-                <Card className="!p-0 overflow-hidden divide-y divide-cal-border/60">
-                    {filteredBookings.map((booking) => (
-                        <BookingRow key={booking.id} {...booking} />
-                    ))}
-                </Card>
-            )}
-        </div>
+                ) : (
+                    filteredBookings.map((booking, index) => (
+                        <div key={booking.id} className={index !== 0 ? 'border-t border-cal-border' : undefined}>
+                            <BookingRow {...booking} />
+                        </div>
+                    ))
+                )}
+                <div className="flex items-center justify-between border-t border-cal-border px-6 py-4 text-sm text-cal-text-muted">
+                    <div className="flex items-center gap-2">
+                        <span className="rounded-lg border border-cal-border bg-cal-bg-subtle px-3 py-1.5 text-cal-text-primary">10</span>
+                        rows per page
+                    </div>
+                    <div>{filteredBookings.length > 0 ? `1-${filteredBookings.length} of ${filteredBookings.length}` : '0 results'}</div>
+                </div>
+            </Card>
+        </Shell>
     );
 }

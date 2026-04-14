@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import { Input } from '../ui/Input';
 
 export function Header() {
     return (

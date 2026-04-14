@@ -1,8 +1,6 @@
-import { format, parse, addMinutes } from 'date-fns';
-import { ExternalLink, Check } from 'lucide-react';
+import { addMinutes, format, parse } from 'date-fns';
+import { Check, ChevronLeft, ExternalLink } from 'lucide-react';
 import type { EventType } from '../../types';
-import { defaultUser } from '../../data/seed';
-import { Card } from '../ui/Card';
 
 interface BookingConfirmationProps {
     eventType: EventType;
@@ -19,70 +17,73 @@ export function BookingConfirmation({
     bookerName,
     bookerEmail,
 }: BookingConfirmationProps) {
-    if (!selectedDate || !selectedTime) return null;
+    if (!selectedDate || !selectedTime) {
+        return null;
+    }
 
-    const startObj = parse(selectedTime, 'HH:mm', new Date());
-    const endObj = addMinutes(startObj, eventType.duration);
-    const startTime = format(startObj, 'h:mm a');
-    const endTime = format(endObj, 'h:mm a');
+    const start = parse(selectedTime, 'HH:mm', new Date());
+    const end = addMinutes(start, eventType.duration);
 
     return (
-        <div className="min-h-screen bg-cal-bg-base flex items-center justify-center p-4">
-            <div className="w-full max-w-[620px] animate-in fade-in zoom-in-95 duration-500">
-                <Card className="px-8 py-12 md:px-12 md:py-16">
-                    <div className="flex flex-col items-center text-center mb-12">
-                        <div className="w-14 h-14 rounded-full bg-cal-success/10 flex items-center justify-center text-cal-success mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                            <Check strokeWidth={3} size={24} />
+        <div className="min-h-screen bg-cal-bg-base px-4 py-8 sm:px-6">
+            <div className="mx-auto w-full max-w-[760px]">
+                <button type="button" className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-cal-text-muted transition-colors hover:text-cal-text-primary">
+                    <ChevronLeft size={16} />
+                    Back to bookings
+                </button>
+
+                <div className="mx-auto max-w-[590px] rounded-[28px] border border-cal-border bg-cal-bg-card px-8 py-10 shadow-[0_16px_40px_rgba(0,0,0,0.3)] sm:px-10">
+                    <div className="mb-10 flex flex-col items-center text-center">
+                        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-cal-success-subtle text-cal-success">
+                            <Check size={28} strokeWidth={2.5} />
                         </div>
-                        <h1 className="text-2xl font-bold text-cal-text-primary tracking-tight mb-3">
-                            This meeting is scheduled
-                        </h1>
-                        <p className="text-[15px] text-cal-text-muted">
+                        <h1 className="text-[2rem] font-semibold tracking-tight text-cal-text-primary">This meeting is scheduled</h1>
+                        <p className="mt-3 max-w-[460px] text-lg leading-8 text-cal-text-default">
                             We sent an email with a calendar invitation with the details to everyone.
                         </p>
                     </div>
 
-                    <div className="space-y-6 text-[15px] max-w-sm mx-auto w-full border-t border-white/5 pt-8">
-                        <div className="flex flex-row justify-between">
-                            <div className="font-semibold text-cal-text-dimmed">What</div>
-                            <div className="font-medium text-cal-text-primary text-right">
-                                {eventType.title}
-                            </div>
+                    <div className="space-y-6 border-t border-cal-border pt-8">
+                        <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
+                            <div className="text-2xl font-medium text-cal-text-primary">What</div>
+                            <div className="text-[1.05rem] leading-8 text-cal-text-default">{eventType.title} between {bookerName} and Aryan Yadav</div>
                         </div>
-
-                        <div className="flex flex-row justify-between">
-                            <div className="font-semibold text-cal-text-dimmed">When</div>
-                            <div className="font-medium text-cal-text-primary text-right leading-tight">
-                                {format(selectedDate, 'EEEE, MMM d, yyyy')}
+                        <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
+                            <div className="text-2xl font-medium text-cal-text-primary">When</div>
+                            <div className="text-[1.05rem] leading-8 text-cal-text-default">
+                                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                                 <br />
-                                <span className="text-cal-text-muted">{startTime} - {endTime}</span>
+                                {format(start, 'h:mm a')} - {format(end, 'h:mm a')}
                             </div>
                         </div>
-
-                        <div className="flex flex-row justify-between">
-                            <div className="font-semibold text-cal-text-dimmed">Who</div>
-                            <div className="font-medium text-cal-text-primary text-right">
-                                <div>{defaultUser.name} <span className="text-cal-text-muted text-xs bg-white/5 px-1.5 py-0.5 rounded ml-1">Host</span></div>
-                                <div className="mt-2">{bookerName}</div>
+                        <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
+                            <div className="text-2xl font-medium text-cal-text-primary">Who</div>
+                            <div className="space-y-3 text-[1.05rem] leading-8 text-cal-text-default">
+                                <div>
+                                    Aryan Yadav <span className="ml-2 rounded-md bg-[#243b87] px-2 py-1 text-xs font-semibold text-white">Host</span>
+                                    <br />
+                                    aryanyadav830670@gmail.com
+                                </div>
+                                <div>
+                                    {bookerName}
+                                    <br />
+                                    {bookerEmail}
+                                </div>
                             </div>
                         </div>
-
-                        <div className="flex flex-row justify-between">
-                            <div className="font-semibold text-cal-text-dimmed">Where</div>
-                            <div className="font-medium text-cal-text-primary text-right flex items-center gap-1.5 justify-end">
+                        <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
+                            <div className="text-2xl font-medium text-cal-text-primary">Where</div>
+                            <div className="inline-flex items-center gap-2 text-[1.05rem] text-cal-text-default">
                                 Cal Video
-                                <ExternalLink size={14} className="text-cal-text-muted" />
+                                <ExternalLink size={15} />
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-14 text-center text-sm">
-                        <span className="text-cal-text-dimmed">Need to make a change? </span>
-                        <span className="text-cal-text-primary font-medium hover:text-white hover:underline cursor-pointer transition-colors">Reschedule</span>
-                        <span className="text-cal-text-dimmed mx-1"> or </span>
-                        <span className="text-cal-text-primary font-medium hover:text-white hover:underline cursor-pointer transition-colors">Cancel</span>
+                    <div className="mt-10 border-t border-cal-border pt-8 text-center text-lg text-cal-text-muted">
+                        Need to make a change? <span className="text-cal-text-primary underline underline-offset-4">Reschedule</span> or <span className="text-cal-text-primary underline underline-offset-4">Cancel</span>
                     </div>
-                </Card>
+                </div>
             </div>
         </div>
     );

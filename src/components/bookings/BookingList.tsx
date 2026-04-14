@@ -9,6 +9,8 @@ interface BookingListProps {
 }
 
 export function BookingList({ bookings, onCancel }: BookingListProps) {
+    void onCancel;
+
     if (bookings.length === 0) {
         return (
             <Card className="flex flex-col items-center justify-center py-12">
@@ -28,11 +30,7 @@ export function BookingList({ bookings, onCancel }: BookingListProps) {
             </p>
             <Card noPadding>
                 {bookings.map((booking) => (
-                    <BookingRow
-                        key={booking.id}
-                        booking={booking}
-                        onCancel={onCancel}
-                    />
+                    <BookingRow key={booking.id} {...booking} />
                 ))}
             </Card>
         </div>

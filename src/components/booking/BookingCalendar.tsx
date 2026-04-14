@@ -1,16 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-    startOfMonth,
-    endOfMonth,
-    eachDayOfInterval,
-    getDay,
-    format,
     addMonths,
-    subMonths,
-    isSameDay,
+    eachDayOfInterval,
+    endOfMonth,
+    format,
+    getDay,
     isBefore,
-    startOfDay,
+    isSameDay,
     isToday,
+    startOfDay,
+    startOfMonth,
+    subMonths,
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -30,7 +30,6 @@ export function BookingCalendar({
     availability,
 }: BookingCalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
-
     const today = useMemo(() => startOfDay(new Date()), []);
 
     const calendarDays = useMemo(() => {
@@ -38,87 +37,78 @@ export function BookingCalendar({
         const monthEnd = endOfMonth(currentMonth);
         const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
         const startPadding = getDay(monthStart);
-        const paddedDays: (Date | null)[] = [
-            ...Array(startPadding).fill(null),
-            ...days,
-        ];
-        return paddedDays;
+        return [...Array(startPadding).fill(null), ...days] as Array<Date | null>;
     }, [currentMonth]);
 
-    const isAvailable = (date: Date): boolean => {
-        if (isBefore(date, today)) return false;
-        const dayOfWeek = getDay(date);
-        const daySchedule = availability.schedule.find((s) => s.day === dayOfWeek);
-        return daySchedule?.enabled === true && daySchedule.timeRanges.length > 0;
+    const isAvailable = (date: Date) => {
+        if (isBefore(date, today)) {
+            return false;
+        }
+
+        const daySchedule = availability.schedule.find((entry) => entry.day === getDay(date));
+        return Boolean(daySchedule?.enabled && daySchedule.timeRanges.length > 0);
     };
 
     return (
         <div className="w-full">
-            {/* Month header */}
-            <div className="flex items-center justify-between mb-6 px-1">
-                <h2 className="text-base text-cal-text-primary flex items-center gap-1.5 tracking-tight">
-                    <span className="font-semibold">{format(currentMonth, 'MMMM')}</span>
-                    <span className="text-cal-text-muted font-medium">{format(currentMonth, 'yyyy')}</span>
+            <div className="mb-7 flex items-center justify-between">
+                <h2 className="text-[1.75rem] font-semibold tracking-tight text-cal-text-primary">
+                    {format(currentMonth, 'MMMM')} <span className="text-cal-text-muted">{format(currentMonth, 'yyyy')}</span>
                 </h2>
-                <div className="flex items-center gap-0.5">
+                <div className="flex items-center gap-1">
                     <button
+                        type="button"
                         onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                        className="p-1.5 rounded-md text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-colors cursor-pointer"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
                     >
-                        <ChevronLeft size={18} strokeWidth={2} />
+                        <ChevronLeft size={18} />
                     </button>
                     <button
+                        type="button"
                         onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                        className="p-1.5 rounded-md text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-colors cursor-pointer"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
                     >
-                        <ChevronRight size={18} strokeWidth={2} />
+                        <ChevronRight size={18} />
                     </button>
                 </div>
             </div>
 
-            {/* Day headers */}
-            <div className="grid grid-cols-7 gap-y-2 mb-2">
+            <div className="mb-3 grid grid-cols-7 gap-3">
                 {DAY_HEADERS.map((day) => (
-                    <div
-                        key={day}
-                        className="text-center text-[11px] font-semibold text-cal-text-dimmed uppercase tracking-widest py-1"
-                    >
+                    <div key={day} className="text-center text-xs font-semibold tracking-[0.18em] text-cal-text-muted">
                         {day}
                     </div>
                 ))}
             </div>
 
-            {/* Date cells */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-3">
                 {calendarDays.map((day, index) => {
                     if (!day) {
-                        return <div key={`empty-${index}`} className="w-full aspect-[1.05] md:aspect-square" />;
+                        return <div key={`empty-${index}`} className="aspect-square" />;
                     }
 
                     const available = isAvailable(day);
                     const selected = selectedDate ? isSameDay(day, selectedDate) : false;
                     const todayDate = isToday(day);
-                    const past = isBefore(day, today);
 
                     return (
                         <button
                             key={day.toISOString()}
-                            onClick={() => available && onSelectDate(day)}
+                            type="button"
                             disabled={!available}
+                            onClick={() => available && onSelectDate(day)}
                             className={cn(
-                                'w-full aspect-[1.05] md:aspect-square flex flex-col items-center justify-center text-[14px] rounded-lg transition-all duration-200 relative font-medium outline-none select-none',
+                                'relative aspect-square rounded-2xl border text-base font-medium transition-all',
                                 selected
-                                    ? 'bg-cal-text-primary text-cal-text-inverted shadow-[0_4px_14px_rgba(255,255,255,0.2)] font-semibold'
+                                    ? 'border-white bg-white text-cal-text-inverted shadow-[0_14px_28px_rgba(255,255,255,0.08)]'
                                     : available
-                                        ? 'bg-transparent text-cal-text-default hover:bg-white/5 cursor-pointer hover:text-cal-text-primary'
-                                        : past
-                                            ? 'text-cal-text-dimmed/30 cursor-not-allowed'
-                                            : 'text-cal-text-dimmed/40 cursor-not-allowed'
+                                        ? 'border-transparent bg-white/7 text-cal-text-primary hover:border-cal-border hover:bg-white/12'
+                                        : 'border-transparent bg-transparent text-cal-text-dimmed/60'
                             )}
                         >
-                            <span>{format(day, 'd')}</span>
+                            {format(day, 'd')}
                             {todayDate && !selected && (
-                                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-cal-text-primary" />
+                                <span className="absolute bottom-2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-cal-text-primary" />
                             )}
                         </button>
                     );

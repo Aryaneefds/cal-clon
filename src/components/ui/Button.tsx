@@ -14,7 +14,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
     primary:
-        'bg-white text-zinc-950 hover:bg-zinc-200 active:bg-zinc-300 font-semibold shadow-sm',
+        'bg-white text-zinc-950 hover:bg-zinc-200 active:bg-zinc-300 font-semibold shadow-[0_10px_24px_rgba(255,255,255,0.08)]',
     secondary:
         'bg-zinc-800 text-zinc-100 border border-transparent hover:bg-zinc-700 active:bg-zinc-600 font-medium shadow-sm',
     ghost:
@@ -28,7 +28,7 @@ const variantStyles: Record<ButtonVariant, string> = {
 const sizeStyles: Record<ButtonSize, string> = {
     sm: 'h-8 px-3 text-[13px] gap-1.5',
     md: 'h-9 px-4 text-sm gap-2',
-    lg: 'h-10 px-5 text-sm gap-2',
+    lg: 'h-11 px-5 text-sm gap-2',
 };
 
 export function Button({
@@ -45,6 +45,7 @@ export function Button({
         <button
             className={cn(
                 'inline-flex items-center justify-center rounded-[var(--radius-cal-sm)] transition-all duration-200 cursor-pointer select-none',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-cal-bg-base)]',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
                 variantStyles[variant],
                 sizeStyles[size],

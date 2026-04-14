@@ -9,93 +9,97 @@ import {
     Workflow,
     BarChart2,
     ExternalLink,
-    Settings,
+    ChevronDown,
+    Search,
+    Gift,
 } from 'lucide-react';
 import { defaultUser } from '../../data/seed';
-import { getInitials } from '../../lib/utils';
-import { cn } from '../../lib/utils';
+import { getInitials, cn } from '../../lib/utils';
 
 const MAIN_NAV = [
-    { name: 'Event Types', href: '/event-types', icon: LinkIcon },
+    { name: 'Event types', href: '/event-types', icon: LinkIcon },
     { name: 'Bookings', href: '/bookings', icon: Calendar },
     { name: 'Availability', href: '/availability', icon: Clock },
 ];
 
 const SECONDARY_NAV = [
-    { name: 'Teams', href: '/teams', icon: Users, disabled: true },
-    { name: 'Apps', href: '/apps', icon: Grid, disabled: true },
-    { name: 'Routing', href: '/routing', icon: Route, disabled: true },
-    { name: 'Workflows', href: '/workflows', icon: Workflow, disabled: true },
-    { name: 'Insights', href: '/insights', icon: BarChart2, disabled: true },
+
 ];
 
 export function Sidebar() {
     return (
-        <aside className="w-60 bg-cal-bg-base border-r border-cal-border flex flex-col h-screen overflow-y-auto">
-            <div className="p-4 flex flex-col h-full">
-
-                {/* User Profile Header */}
-                <div className="flex items-center gap-3 px-2 py-2 mb-6 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-cal-bg-emphasis flex items-center justify-center text-xs font-bold text-cal-text-primary ring-1 ring-white/10">
+        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-cal-border bg-cal-bg-surface lg:flex">
+            <div className="flex h-full w-full flex-col px-4 py-5">
+                <div className="mb-6 flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-white/5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cal-bg-emphasis text-xs font-semibold text-cal-text-primary ring-1 ring-white/10">
                         {getInitials(defaultUser.name)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <h2 className="text-sm font-semibold text-cal-text-primary truncate">{defaultUser.name}</h2>
+                    <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-cal-text-primary">{defaultUser.name}</div>
                     </div>
+                    <ChevronDown size={14} className="text-cal-text-dimmed" />
+                    <Search size={16} className="text-cal-text-dimmed" />
                 </div>
 
-                {/* Main Navigation */}
-                <nav className="space-y-0.5 mb-8">
+                <nav className="space-y-1">
                     {MAIN_NAV.map((item) => (
                         <NavLink
                             key={item.href}
                             to={item.href}
                             className={({ isActive }) =>
                                 cn(
-                                    'flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 text-[13.5px] font-medium outline-none',
+                                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium transition-colors',
                                     isActive
-                                        ? 'bg-white/10 text-cal-text-primary'
-                                        : 'text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5'
+                                        ? 'bg-white/12 text-cal-text-primary'
+                                        : 'text-cal-text-muted hover:bg-white/5 hover:text-cal-text-primary'
                                 )
                             }
                         >
-                            <item.icon size={16} strokeWidth={2.5} />
-                            {item.name}
+                            <item.icon size={17} strokeWidth={2.1} />
+                            <span>{item.name}</span>
                         </NavLink>
                     ))}
                 </nav>
 
-                {/* Secondary Navigation */}
-                <nav className="space-y-0.5 flex-1">
+                <nav className="mt-3 space-y-1">
                     {SECONDARY_NAV.map((item) => (
-                        <div
+                        <button
                             key={item.name}
-                            className="flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] font-medium text-cal-text-dimmed cursor-not-allowed opacity-60"
+                            type="button"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
                         >
-                            <item.icon size={16} strokeWidth={2.5} />
-                            {item.name}
-                        </div>
+                            <item.icon size={17} strokeWidth={2.1} />
+                            <span className="flex-1 text-left">{item.name}</span>
+                            {(item.name === 'Apps' || item.name === 'Insights') && (
+                                <ChevronDown size={14} className="text-cal-text-dimmed" />
+                            )}
+                        </button>
                     ))}
                 </nav>
 
-                {/* Footer Links */}
-                <div className="pt-4 border-t border-cal-border/50 mt-auto space-y-0.5">
+                <div className="mt-auto space-y-1 pt-6">
                     <a
                         href={`/${defaultUser.username}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] font-medium text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-all"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
                     >
-                        <ExternalLink size={16} strokeWidth={2.5} />
+                        <ExternalLink size={17} strokeWidth={2.1} />
                         View public page
                     </a>
-                    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] font-medium text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-all cursor-pointer">
-                        <LinkIcon size={16} strokeWidth={2.5} />
+                    <button
+                        type="button"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
+                    >
+                        <LinkIcon size={17} strokeWidth={2.1} />
                         Copy public page link
                     </button>
-                    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-[13.5px] font-medium text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-all cursor-pointer">
-                        <Settings size={16} strokeWidth={2.5} />
-                        Settings
+                    <button
+                        type="button"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
+                    >
+                        <Gift size={17} strokeWidth={2.1} />
+                        Refer and earn
                     </button>
                 </div>
             </div>

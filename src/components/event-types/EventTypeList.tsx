@@ -11,6 +11,10 @@ interface EventTypeListProps {
 }
 
 export function EventTypeList({ eventTypes, onToggle, onEdit, onDelete }: EventTypeListProps) {
+    void onToggle;
+    void onEdit;
+    void onDelete;
+
     if (eventTypes.length === 0) {
         return (
             <Card className="flex flex-col items-center justify-center py-12">
@@ -26,13 +30,7 @@ export function EventTypeList({ eventTypes, onToggle, onEdit, onDelete }: EventT
     return (
         <Card noPadding>
             {eventTypes.map((et) => (
-                <EventTypeCard
-                    key={et.id}
-                    eventType={et}
-                    onToggle={onToggle}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                />
+                <EventTypeCard key={et.id} {...et} />
             ))}
         </Card>
     );

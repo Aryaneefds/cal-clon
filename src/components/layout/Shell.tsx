@@ -7,10 +7,10 @@ interface ShellProps {
 
 export function Shell({ children }: ShellProps) {
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-cal-bg-base">
             <Sidebar />
-            <main className="flex-1 overflow-auto">
-                <div className="max-w-5xl mx-auto p-6">
+            <main className="min-w-0 flex-1 overflow-auto">
+                <div className="mx-auto w-full max-w-[1280px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                     {children}
                 </div>
             </main>
