@@ -1,7 +1,7 @@
 import { cn } from '../../lib/utils';
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'destructive';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,23 +9,26 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     size?: ButtonSize;
     children: ReactNode;
     icon?: ReactNode;
+    loading?: boolean;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
     primary:
-        'bg-cal-brand text-cal-brand-text hover:bg-white/90 active:bg-white/80 shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+        'bg-white text-zinc-950 hover:bg-zinc-200 active:bg-zinc-300 font-semibold shadow-sm',
     secondary:
-        'bg-cal-bg-subtle text-cal-text-primary border border-cal-border-emphasis hover:bg-cal-bg-emphasis active:bg-cal-bg-emphasis/80 shadow-[0_1px_2px_rgba(0,0,0,0.2)]',
+        'bg-zinc-800 text-zinc-100 border border-transparent hover:bg-zinc-700 active:bg-zinc-600 font-medium shadow-sm',
     ghost:
-        'bg-transparent text-cal-text-muted hover:text-cal-text-primary hover:bg-cal-bg-subtle/80',
+        'bg-transparent text-zinc-400 hover:text-zinc-100 hover:bg-white/5 active:bg-white/10 font-medium transition-colors',
+    outline:
+        'bg-transparent text-zinc-200 border border-white/10 hover:border-white/20 hover:bg-white/5 font-medium shadow-sm',
     destructive:
-        'bg-cal-error/90 text-white hover:bg-cal-error active:bg-red-700 shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+        'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30 font-medium',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-    sm: 'px-3 py-1.5 text-xs gap-1.5',
-    md: 'px-4 py-2 text-sm gap-2',
-    lg: 'px-5 py-2.5 text-sm gap-2',
+    sm: 'h-8 px-3 text-[13px] gap-1.5',
+    md: 'h-9 px-4 text-sm gap-2',
+    lg: 'h-10 px-5 text-sm gap-2',
 };
 
 export function Button({
@@ -35,21 +38,28 @@ export function Button({
     icon,
     className,
     disabled,
+    loading,
     ...props
 }: ButtonProps) {
     return (
         <button
             className={cn(
-                'inline-flex items-center justify-center font-medium rounded-[var(--radius-cal-md)] transition-all duration-200 cursor-pointer select-none',
-                'disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none',
+                'inline-flex items-center justify-center rounded-[var(--radius-cal-sm)] transition-all duration-200 cursor-pointer select-none',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
                 variantStyles[variant],
                 sizeStyles[size],
                 className
             )}
-            disabled={disabled}
+            disabled={disabled || loading}
             {...props}
         >
-            {icon && <span className="flex-shrink-0">{icon}</span>}
+            {icon && !loading && <span className="flex-shrink-0">{icon}</span>}
+            {loading && (
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            )}
             {children}
         </button>
     );

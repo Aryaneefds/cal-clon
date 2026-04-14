@@ -31,20 +31,20 @@ export function TimeSlotPicker({
     const availableSlots = slots.filter((s) => s.available);
 
     return (
-        <div className="w-full">
+        <div className="w-full flex md:pl-8 md:border-l border-cal-border flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-cal-text-primary">
-                    {format(selectedDate, 'EEE d')}
+            <div className="flex items-center justify-between mb-6 px-1">
+                <h3 className="text-base font-semibold text-cal-text-primary tracking-tight">
+                    {format(selectedDate, 'EEEE, MMM dd')}
                 </h3>
-                <div className="flex items-center bg-cal-bg-subtle border border-cal-border rounded-[var(--radius-cal-sm)] overflow-hidden">
+                <div className="flex items-center bg-cal-bg-subtle/50 rounded-md p-0.5 shadow-sm border border-cal-border">
                     <button
                         onClick={() => setUse24h(false)}
                         className={cn(
-                            'px-2.5 py-1 text-[10px] font-bold transition-all cursor-pointer tracking-wider',
+                            'px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer rounded-[4px]',
                             !use24h
-                                ? 'bg-cal-bg-emphasis text-cal-text-primary'
-                                : 'text-cal-text-dimmed hover:text-cal-text-muted'
+                                ? 'bg-cal-bg-emphasis text-cal-text-primary shadow-sm'
+                                : 'text-cal-text-muted hover:text-cal-text-primary'
                         )}
                     >
                         12h
@@ -52,10 +52,10 @@ export function TimeSlotPicker({
                     <button
                         onClick={() => setUse24h(true)}
                         className={cn(
-                            'px-2.5 py-1 text-[10px] font-bold transition-all cursor-pointer tracking-wider',
+                            'px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer rounded-[4px]',
                             use24h
-                                ? 'bg-cal-bg-emphasis text-cal-text-primary'
-                                : 'text-cal-text-dimmed hover:text-cal-text-muted'
+                                ? 'bg-cal-bg-emphasis text-cal-text-primary shadow-sm'
+                                : 'text-cal-text-muted hover:text-cal-text-primary'
                         )}
                     >
                         24h
@@ -64,11 +64,10 @@ export function TimeSlotPicker({
             </div>
 
             {/* Slots */}
-            <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1">
+            <div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
                 {availableSlots.length === 0 ? (
-                    <div className="flex flex-col items-center py-8 text-center">
-                        <p className="text-sm text-cal-text-muted">No available slots</p>
-                        <p className="text-xs text-cal-text-dimmed mt-1">Try another date</p>
+                    <div className="flex flex-col items-center justify-center py-12 text-center h-full">
+                        <p className="text-sm font-medium text-cal-text-muted">No slots available</p>
                     </div>
                 ) : (
                     availableSlots.map((slot) => (
@@ -76,14 +75,19 @@ export function TimeSlotPicker({
                             key={slot.time}
                             onClick={() => onSelectSlot(slot.time)}
                             className={cn(
-                                'w-full flex items-center gap-3 px-4 py-3 rounded-[var(--radius-cal-lg)] border transition-all duration-200 cursor-pointer group',
+                                'w-full flex items-center justify-center gap-2.5 py-3 rounded-lg border transition-all duration-200 cursor-pointer text-sm font-semibold tracking-tight',
                                 selectedSlot === slot.time
-                                    ? 'bg-cal-bg-emphasis border-cal-border-emphasis text-cal-text-primary shadow-[0_0_0_1px_rgba(255,255,255,0.08)]'
-                                    : 'bg-cal-bg-card border-cal-border text-cal-text-default hover:bg-cal-bg-subtle hover:border-cal-border-emphasis hover:shadow-[var(--shadow-cal-sm)]'
+                                    ? 'bg-cal-text-primary border-cal-text-primary text-cal-text-inverted shadow-[0_4px_14px_rgba(255,255,255,0.1)]'
+                                    : 'bg-transparent border-white/10 text-cal-text-primary hover:bg-white/5 hover:border-white/20'
                             )}
                         >
-                            <span className="w-2 h-2 rounded-full bg-cal-success flex-shrink-0 group-hover:shadow-[0_0_6px_rgba(34,197,94,0.4)]" />
-                            <span className="text-sm font-semibold">
+                            <span
+                                className={cn(
+                                    "w-2 h-2 rounded-full flex-shrink-0 transition-colors",
+                                    selectedSlot === slot.time ? "bg-cal-bg-base" : "bg-cal-success"
+                                )}
+                            />
+                            <span>
                                 {formatTime(slot.time, use24h)}
                             </span>
                         </button>

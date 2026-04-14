@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Video, Globe, ChevronDown, HelpCircle } from 'lucide-react';
+import { Clock, Video, Globe, Calendar as CalendarIcon } from 'lucide-react';
 import { format, getDay } from 'date-fns';
 import { getInitials } from '../lib/utils';
 import { defaultUser } from '../data/seed';
@@ -12,6 +12,7 @@ import { TimeSlotPicker } from '../components/booking/TimeSlotPicker';
 import { BookingForm } from '../components/booking/BookingForm';
 import { BookingConfirmation } from '../components/booking/BookingConfirmation';
 import { addMinutes, parse } from 'date-fns';
+import { Card } from '../components/ui/Card';
 
 type BookingStep = 'calendar' | 'form' | 'confirmation';
 
@@ -39,12 +40,9 @@ export function PublicBookingPage() {
 
     if (!eventType) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen bg-cal-bg-base flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-xl font-bold text-cal-text-primary mb-2">Event not found</h1>
-                    <p className="text-cal-text-muted text-sm mb-4">
-                        This event type doesn&apos;t exist or has been deactivated.
-                    </p>
                     <button
                         onClick={() => navigate(-1)}
                         className="text-sm text-cal-info hover:underline cursor-pointer"
@@ -68,116 +66,117 @@ export function PublicBookingPage() {
         );
     }
 
-    if (step === 'form' && selectedDate && selectedTime) {
-        return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <div className="w-full max-w-3xl">
-                    <BookingForm
-                        eventType={eventType}
-                        selectedDate={selectedDate}
-                        selectedTime={selectedTime}
-                        onBack={() => setStep('calendar')}
-                        onConfirm={(data) => {
-                            const endTime = format(
-                                addMinutes(parse(selectedTime, 'HH:mm', new Date()), eventType.duration),
-                                'HH:mm'
-                            );
-                            addBooking({
-                                eventTypeId: eventType.id,
-                                eventTitle: eventType.title,
-                                date: format(selectedDate, 'yyyy-MM-dd'),
-                                startTime: selectedTime,
-                                endTime,
-                                duration: eventType.duration,
-                                bookerName: data.name,
-                                bookerEmail: data.email,
-                                notes: data.notes || undefined,
-                                status: 'upcoming',
-                            });
-                            setConfirmedBooking({ name: data.name, email: data.email });
-                            setStep('confirmation');
-                        }}
-                    />
-                    <p className="text-xs text-cal-text-dimmed text-center mt-4">Cal.com</p>
+    // Layout for Left Panel Event Info
+    const EventInfoPanel = () => (
+        <div className="w-full md:w-[300px] flex-shrink-0 flex flex-col md:pr-8 md:border-r border-cal-border">
+            <div className="flex items-center gap-2.5 mb-6">
+                <div className="w-7 h-7 rounded-full bg-cal-bg-emphasis flex items-center justify-center text-[11px] font-bold text-cal-text-primary ring-1 ring-white/10">
+                    {getInitials(defaultUser.name)}
                 </div>
+                <span className="text-sm text-cal-text-muted font-medium">{defaultUser.name}</span>
             </div>
-        );
-    }
+            <h1 className="text-2xl font-bold text-cal-text-primary tracking-tight mb-8 leading-tight">
+                {eventType.title}
+            </h1>
 
-    // Calendar view (Screenshot 5)
+            <div className="space-y-5">
+                <div className="flex items-start gap-3 text-[14.5px] font-medium text-cal-text-primary">
+                    <Clock size={18} className="text-cal-text-muted flex-shrink-0 mt-0.5" />
+                    <span>{eventType.duration} min</span>
+                </div>
+                <div className="flex items-start gap-3 text-[14.5px] font-medium text-cal-text-primary">
+                    <Video size={18} className="text-cal-text-muted flex-shrink-0 mt-0.5" />
+                    <span>Cal Video</span>
+                </div>
+                <div className="flex items-start gap-3 text-[14.5px] font-medium text-cal-text-primary">
+                    <Globe size={18} className="text-cal-text-muted flex-shrink-0 mt-0.5" />
+                    <span className="leading-snug text-cal-text-muted">
+                        {availability.timezone}
+                    </span>
+                </div>
+
+                {/* Show selected date details contextually if in form state */}
+                {step === 'form' && selectedDate && selectedTime && (
+                    <div className="pt-2">
+                        <div className="flex items-start gap-3 text-[14.5px] font-medium text-cal-text-primary text-cal-text-success">
+                            <CalendarIcon size={18} className="text-cal-success flex-shrink-0 mt-0.5" />
+                            <div className="text-cal-success font-semibold">
+                                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                                <br />
+                                {format(parse(selectedTime, 'HH:mm', new Date()), 'h:mm a')} –{' '}
+                                {format(addMinutes(parse(selectedTime, 'HH:mm', new Date()), eventType.duration), 'h:mm a')}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-            {/* Top bar */}
-            <div className="w-full max-w-4xl flex justify-end mb-2 gap-2">
-                <button className="text-xs text-cal-text-muted hover:text-cal-text-default flex items-center gap-1 cursor-pointer">
-                    <HelpCircle size={14} />
-                    Need help?
-                </button>
-            </div>
+        <div className="min-h-screen bg-cal-bg-base flex items-center justify-center p-4">
+            <div className="w-full max-w-[1060px] animate-in fade-in zoom-in-95 duration-500">
+                <Card className="flex flex-col md:flex-row gap-8 p-6 md:p-10" noPadding>
+                    <EventInfoPanel />
 
-            <div className="cal-card w-full max-w-4xl overflow-hidden">
-                <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-cal-border">
-                    {/* Left panel — event info */}
-                    <div className="w-full md:w-[200px] p-5 flex-shrink-0">
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-full bg-cal-bg-emphasis flex items-center justify-center text-xs font-medium text-cal-text-primary">
-                                {getInitials(defaultUser.name)}
-                            </div>
-                        </div>
-                        <p className="text-sm text-cal-text-muted mb-1">{defaultUser.name}</p>
-                        <h1 className="text-lg font-bold text-cal-text-primary mb-4">{eventType.title}</h1>
-
-                        <div className="space-y-2.5">
-                            <div className="flex items-center gap-2 text-sm text-cal-text-muted">
-                                <Clock size={14} className="flex-shrink-0" />
-                                <span>{eventType.duration}m</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-cal-text-muted">
-                                <Video size={14} className="flex-shrink-0" />
-                                <span>Cal Video</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-cal-text-muted">
-                                <Globe size={14} className="flex-shrink-0" />
-                                <span className="flex items-center gap-1">
-                                    {availability.timezone}
-                                    <ChevronDown size={12} />
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Center panel — calendar */}
-                    <div className="flex-1 p-5 min-w-0">
-                        <BookingCalendar
-                            selectedDate={selectedDate}
-                            onSelectDate={(date) => {
-                                setSelectedDate(date);
-                                setSelectedTime(null);
-                            }}
-                            availability={availability}
-                        />
-                    </div>
-
-                    {/* Right panel — time slots (show when date is selected) */}
-                    {selectedDate && (
-                        <div className="w-full md:w-[200px] p-5 flex-shrink-0">
-                            <TimeSlotPicker
+                    {/* Right Content Area */}
+                    <div className="flex-1 flex justify-center">
+                        {step === 'form' && selectedDate && selectedTime ? (
+                            <BookingForm
+                                eventType={eventType}
                                 selectedDate={selectedDate}
-                                timeRanges={timeRangesForDate}
-                                duration={eventType.duration}
-                                existingBookings={bookings}
-                                selectedSlot={selectedTime}
-                                onSelectSlot={(time) => {
-                                    setSelectedTime(time);
-                                    setStep('form');
+                                selectedTime={selectedTime}
+                                onBack={() => setStep('calendar')}
+                                onConfirm={(data) => {
+                                    const endTime = format(addMinutes(parse(selectedTime, 'HH:mm', new Date()), eventType.duration), 'HH:mm');
+                                    addBooking({
+                                        eventTypeId: eventType.id,
+                                        eventTitle: eventType.title,
+                                        date: format(selectedDate, 'yyyy-MM-dd'),
+                                        startTime: selectedTime,
+                                        endTime,
+                                        duration: eventType.duration,
+                                        bookerName: data.name,
+                                        bookerEmail: data.email,
+                                        notes: data.notes || undefined,
+                                        status: 'upcoming',
+                                    });
+                                    setConfirmedBooking({ name: data.name, email: data.email });
+                                    setStep('confirmation');
                                 }}
                             />
-                        </div>
-                    )}
-                </div>
+                        ) : (
+                            <div className="flex flex-col md:flex-row gap-8 w-full max-w-[700px] justify-between">
+                                <div className="flex-1 max-w-[380px]">
+                                    <BookingCalendar
+                                        selectedDate={selectedDate}
+                                        onSelectDate={(date) => {
+                                            setSelectedDate(date);
+                                            setSelectedTime(null);
+                                        }}
+                                        availability={availability}
+                                    />
+                                </div>
+                                {selectedDate && (
+                                    <div className="w-full md:w-[280px]">
+                                        <TimeSlotPicker
+                                            selectedDate={selectedDate}
+                                            timeRanges={timeRangesForDate}
+                                            duration={eventType.duration}
+                                            existingBookings={bookings}
+                                            selectedSlot={selectedTime}
+                                            onSelectSlot={(time) => {
+                                                setSelectedTime(time);
+                                                setStep('form');
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </Card>
             </div>
-
-            <p className="text-xs text-cal-text-dimmed mt-4">Cal.com</p>
         </div>
     );
 }

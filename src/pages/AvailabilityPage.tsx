@@ -1,164 +1,149 @@
-import { Plus, Trash2 } from 'lucide-react';
-import { Shell } from '../components/layout/Shell';
-import { PageHeader } from '../components/layout/PageHeader';
-import { Card } from '../components/ui/Card';
-import { Switch } from '../components/ui/Switch';
-import { Button } from '../components/ui/Button';
+import { Plus } from 'lucide-react';
 import { useAvailabilityStore } from '../stores/availabilityStore';
+import { Card } from '../components/ui/Card';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
 
-const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const dayAbbr = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-function generateTimeOptions(): { value: string; label: string }[] {
-    const options: { value: string; label: string }[] = [];
-    for (let h = 0; h < 24; h++) {
-        for (let m = 0; m < 60; m += 15) {
-            const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-            const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
-            const ampm = h < 12 ? 'am' : 'pm';
-            const label = `${hour12}:${String(m).padStart(2, '0')} ${ampm}`;
-            options.push({ value: val, label });
-        }
-    }
-    return options;
-}
-
-const timeOptions = generateTimeOptions();
+const DAYS = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+];
 
 export function AvailabilityPage() {
-    const {
-        availability,
-        updateAvailability,
-        toggleDay,
-        addTimeRange,
-        removeTimeRange,
-        updateTimeRange,
-    } = useAvailabilityStore();
+    const { availability, updateSchedule, updateTimezone } = useAvailabilityStore();
 
-    const timezones = (() => {
-        try {
-            return Intl.supportedValuesOf('timeZone');
-        } catch {
-            return [availability.timezone];
+    const handleToggleDay = (dayIndex: number) => {
+        const existing = availability.schedule.find((s) => s.day === dayIndex);
+        if (existing) {
+            updateSchedule(
+                availability.schedule.map((s) =>
+                    s.day === dayIndex ? { ...s, enabled: !s.enabled } : s
+                )
+            );
+        } else {
+            updateSchedule([
+                ...availability.schedule,
+                { day: dayIndex, enabled: true, timeRanges: [{ start: '09:00', end: '17:00' }] },
+            ]);
         }
-    })();
+    };
+
+    const handleTimeChange = (dayIndex: number, rangeIndex: number, field: 'start' | 'end', value: string) => {
+        updateSchedule(
+            availability.schedule.map((s) => {
+                if (s.day === dayIndex) {
+                    const newRanges = [...s.timeRanges];
+                    newRanges[rangeIndex] = { ...newRanges[rangeIndex], [field]: value };
+                    return { ...s, timeRanges: newRanges };
+                }
+                return s;
+            })
+        );
+    };
 
     return (
-        <Shell>
-            <PageHeader
-                title="Availability"
-                subtitle="Configure times when you are available for bookings."
-            />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+            <div className="mb-8">
+                <h1 className="text-2xl font-bold text-cal-text-primary tracking-tight mb-2">Availability</h1>
+                <p className="text-sm text-cal-text-muted">
+                    Configure times when you are available for bookings.
+                </p>
+            </div>
 
-            <Card>
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 className="text-base font-semibold text-cal-text-primary">{availability.name}</h2>
-                        <p className="text-sm text-cal-text-muted mt-0.5">Set your weekly recurring schedule</p>
+            <Card className="!p-0 overflow-hidden mb-6">
+                <div className="p-6 md:p-8 border-b border-cal-border">
+                    <h2 className="text-lg font-semibold text-cal-text-primary mb-1">Working Hours</h2>
+                    <p className="text-sm text-cal-text-muted mb-6">Set your weekly recurring schedule</p>
+
+                    <div className="max-w-xs">
+                        <h3 className="text-xs font-semibold text-cal-text-dimmed uppercase tracking-widest mb-2">Timezone</h3>
+                        <Input
+                            value={availability.timezone}
+                            onChange={(e) => updateTimezone(e.target.value)}
+                            placeholder="Europe/London"
+                        />
                     </div>
                 </div>
 
-                {/* Timezone selector */}
-                <div className="mb-8">
-                    <label className="text-xs font-semibold text-cal-text-muted uppercase tracking-wider block mb-2">
-                        Timezone
-                    </label>
-                    <select
-                        value={availability.timezone}
-                        onChange={(e) => updateAvailability({ timezone: e.target.value })}
-                        className="cal-input max-w-sm appearance-none"
-                    >
-                        {timezones.map((tz) => (
-                            <option key={tz} value={tz}>{tz.replace(/_/g, ' ')}</option>
-                        ))}
-                    </select>
-                </div>
+                <div className="dev">
+                    {DAYS.map((dayName, index) => {
+                        const schedule = availability.schedule.find((s) => s.day === index);
+                        const isEnabled = schedule?.enabled ?? false;
 
-                {/* Day schedules */}
-                <div className="space-y-1">
-                    {availability.schedule.map((daySchedule) => (
-                        <div
-                            key={daySchedule.day}
-                            className="flex items-start gap-4 py-4 border-b border-cal-border/60 last:border-b-0"
-                        >
-                            {/* Day toggle */}
-                            <div className="w-36 flex items-center gap-3 pt-1 flex-shrink-0">
-                                <Switch
-                                    checked={daySchedule.enabled}
-                                    onChange={() => toggleDay(daySchedule.day)}
-                                />
-                                <span className={`text-sm font-medium ${daySchedule.enabled ? 'text-cal-text-primary' : 'text-cal-text-dimmed'
-                                    }`}>
-                                    {dayNames[daySchedule.day]}
-                                </span>
-                            </div>
+                        return (
+                            <div
+                                key={dayName}
+                                className="flex items-start md:items-center py-5 px-6 md:px-8 border-b last:border-0 border-cal-border/50"
+                            >
+                                {/* Toggle & Day */}
+                                <div className="w-40 flex items-center gap-4 flex-shrink-0">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={isEnabled}
+                                            onChange={() => handleToggleDay(index)}
+                                        />
+                                        <div className="w-9 h-5 bg-cal-bg-emphasis peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cal-text-primary"></div>
+                                    </label>
+                                    <span
+                                        className={`text-[15px] font-medium ${isEnabled ? 'text-cal-text-primary' : 'text-cal-text-dimmed'
+                                            }`}
+                                    >
+                                        {dayName}
+                                    </span>
+                                </div>
 
-                            {/* Time ranges */}
-                            <div className="flex-1">
-                                {!daySchedule.enabled ? (
-                                    <p className="text-sm text-cal-text-dimmed pt-1 italic">Unavailable</p>
-                                ) : (
-                                    <div className="space-y-2.5">
-                                        {daySchedule.timeRanges.map((range, index) => (
-                                            <div key={index} className="flex items-center gap-2">
-                                                <select
-                                                    value={range.start}
-                                                    onChange={(e) =>
-                                                        updateTimeRange(daySchedule.day, index, 'start', e.target.value)
-                                                    }
-                                                    className="cal-input text-sm appearance-none w-[130px]"
-                                                >
-                                                    {timeOptions.map((opt) => (
-                                                        <option key={opt.value} value={opt.value}>
-                                                            {opt.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <span className="text-cal-text-dimmed text-sm font-medium">—</span>
-                                                <select
-                                                    value={range.end}
-                                                    onChange={(e) =>
-                                                        updateTimeRange(daySchedule.day, index, 'end', e.target.value)
-                                                    }
-                                                    className="cal-input text-sm appearance-none w-[130px]"
-                                                >
-                                                    {timeOptions.map((opt) => (
-                                                        <option key={opt.value} value={opt.value}>
-                                                            {opt.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {daySchedule.timeRanges.length > 1 && (
-                                                    <button
-                                                        onClick={() => removeTimeRange(daySchedule.day, index)}
-                                                        className="p-1.5 rounded-[var(--radius-cal-sm)] text-cal-text-dimmed hover:text-cal-error hover:bg-cal-bg-subtle transition-colors cursor-pointer"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                )}
+                                {/* Time Ranges */}
+                                <div className="flex-1 flex flex-col gap-3">
+                                    {!isEnabled ? (
+                                        <span className="text-[14.5px] italic text-cal-text-dimmed py-2">
+                                            Unavailable
+                                        </span>
+                                    ) : (
+                                        <>
+                                            {schedule?.timeRanges.map((range, rIndex) => (
+                                                <div key={rIndex} className="flex items-center gap-3">
+                                                    <Input
+                                                        type="time"
+                                                        value={range.start}
+                                                        onChange={(e) => handleTimeChange(index, rIndex, 'start', e.target.value)}
+                                                        className="w-32 !h-9 text-center tracking-wide font-medium"
+                                                    />
+                                                    <span className="text-cal-text-dimmed font-medium">—</span>
+                                                    <Input
+                                                        type="time"
+                                                        value={range.end}
+                                                        onChange={(e) => handleTimeChange(index, rIndex, 'end', e.target.value)}
+                                                        className="w-32 !h-9 text-center tracking-wide font-medium"
+                                                    />
+                                                </div>
+                                            ))}
+                                            <div className="flex items-center">
+                                                <button className="text-[13px] font-medium text-cal-text-muted hover:text-cal-text-primary flex items-center gap-1.5 transition-colors cursor-pointer pt-1">
+                                                    <Plus size={14} />
+                                                    Add time range
+                                                </button>
                                             </div>
-                                        ))}
-                                        <button
-                                            onClick={() => addTimeRange(daySchedule.day)}
-                                            className="flex items-center gap-1.5 text-xs font-medium text-cal-text-muted hover:text-cal-info transition-colors cursor-pointer mt-1"
-                                        >
-                                            <Plus size={13} />
-                                            <span>Add time range</span>
-                                        </button>
-                                    </div>
-                                )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
-                {/* Save button inside card */}
-                <div className="flex justify-end pt-6 mt-4 border-t border-cal-border">
-                    <Button onClick={() => alert('Schedule saved!')}>
+                <div className="p-4 md:p-6 bg-cal-bg-subtle/30 border-t border-cal-border flex justify-end">
+                    <Button variant="primary">
                         Save changes
                     </Button>
                 </div>
             </Card>
-        </Shell>
+        </div>
     );
 }

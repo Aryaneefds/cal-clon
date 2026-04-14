@@ -55,33 +55,33 @@ export function BookingCalendar({
     return (
         <div className="w-full">
             {/* Month header */}
-            <div className="flex items-center justify-between mb-5">
-                <h2 className="text-sm text-cal-text-primary">
-                    <span className="font-bold">{format(currentMonth, 'MMMM')}</span>{' '}
-                    <span className="text-cal-text-muted">{format(currentMonth, 'yyyy')}</span>
+            <div className="flex items-center justify-between mb-6 px-1">
+                <h2 className="text-base text-cal-text-primary flex items-center gap-1.5 tracking-tight">
+                    <span className="font-semibold">{format(currentMonth, 'MMMM')}</span>
+                    <span className="text-cal-text-muted font-medium">{format(currentMonth, 'yyyy')}</span>
                 </h2>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                     <button
                         onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                        className="p-1.5 rounded-[var(--radius-cal-md)] text-cal-text-muted hover:text-cal-text-primary hover:bg-cal-bg-subtle transition-colors cursor-pointer"
+                        className="p-1.5 rounded-md text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-colors cursor-pointer"
                     >
-                        <ChevronLeft size={16} />
+                        <ChevronLeft size={18} strokeWidth={2} />
                     </button>
                     <button
                         onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                        className="p-1.5 rounded-[var(--radius-cal-md)] text-cal-text-muted hover:text-cal-text-primary hover:bg-cal-bg-subtle transition-colors cursor-pointer"
+                        className="p-1.5 rounded-md text-cal-text-muted hover:text-cal-text-primary hover:bg-white/5 transition-colors cursor-pointer"
                     >
-                        <ChevronRight size={16} />
+                        <ChevronRight size={18} strokeWidth={2} />
                     </button>
                 </div>
             </div>
 
             {/* Day headers */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
+            <div className="grid grid-cols-7 gap-y-2 mb-2">
                 {DAY_HEADERS.map((day) => (
                     <div
                         key={day}
-                        className="text-center text-[10px] font-bold text-amber-600 py-1 tracking-wider"
+                        className="text-center text-[11px] font-semibold text-cal-text-dimmed uppercase tracking-widest py-1"
                     >
                         {day}
                     </div>
@@ -92,7 +92,7 @@ export function BookingCalendar({
             <div className="grid grid-cols-7 gap-1">
                 {calendarDays.map((day, index) => {
                     if (!day) {
-                        return <div key={`empty-${index}`} className="w-full aspect-square" />;
+                        return <div key={`empty-${index}`} className="w-full aspect-[1.05] md:aspect-square" />;
                     }
 
                     const available = isAvailable(day);
@@ -106,19 +106,19 @@ export function BookingCalendar({
                             onClick={() => available && onSelectDate(day)}
                             disabled={!available}
                             className={cn(
-                                'w-full aspect-square flex flex-col items-center justify-center text-[13px] rounded-[var(--radius-cal-md)] transition-all duration-200 relative font-medium',
+                                'w-full aspect-[1.05] md:aspect-square flex flex-col items-center justify-center text-[14px] rounded-lg transition-all duration-200 relative font-medium outline-none select-none',
                                 selected
-                                    ? 'bg-cal-bg-inverted text-cal-text-inverted font-bold shadow-[0_2px_8px_rgba(255,255,255,0.15)]'
+                                    ? 'bg-cal-text-primary text-cal-text-inverted shadow-[0_4px_14px_rgba(255,255,255,0.2)] font-semibold'
                                     : available
-                                        ? 'bg-cal-bg-emphasis text-cal-text-primary hover:bg-cal-bg-emphasis/70 hover:scale-105 cursor-pointer'
+                                        ? 'bg-transparent text-cal-text-default hover:bg-white/5 cursor-pointer hover:text-cal-text-primary'
                                         : past
-                                            ? 'text-cal-text-dimmed/50 cursor-not-allowed'
-                                            : 'text-cal-text-dimmed cursor-not-allowed'
+                                            ? 'text-cal-text-dimmed/30 cursor-not-allowed'
+                                            : 'text-cal-text-dimmed/40 cursor-not-allowed'
                             )}
                         >
                             <span>{format(day, 'd')}</span>
                             {todayDate && !selected && (
-                                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-cal-info" />
+                                <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-cal-text-primary" />
                             )}
                         </button>
                     );

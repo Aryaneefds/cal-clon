@@ -12,16 +12,15 @@ export function Textarea({ label, error, className, required, id, variant = 'dar
     return (
         <div className="flex flex-col gap-1.5">
             {label && (
-                <label htmlFor={textareaId} className="text-sm font-medium text-cal-text-primary">
+                <label htmlFor={textareaId} className="text-sm font-semibold text-cal-text-primary">
                     {label}
-                    {required && <span className="text-cal-error ml-0.5">*</span>}
+                    {required && <span className="text-cal-error ml-1">*</span>}
                 </label>
             )}
             <textarea
                 id={textareaId}
                 className={cn(
-                    variant === 'light' ? 'cal-input-light' : 'cal-input',
-                    'w-full min-h-[100px] resize-y',
+                    'cal-input w-full min-h-[80px] resize-y',
                     error && 'border-cal-error!',
                     className
                 )}
