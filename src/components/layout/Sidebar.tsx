@@ -3,11 +3,6 @@ import {
     Link as LinkIcon,
     Calendar,
     Clock,
-    Users,
-    Grid,
-    Route,
-    Workflow,
-    BarChart2,
     ExternalLink,
     ChevronDown,
     Search,
@@ -20,10 +15,6 @@ const MAIN_NAV = [
     { name: 'Event types', href: '/event-types', icon: LinkIcon },
     { name: 'Bookings', href: '/bookings', icon: Calendar },
     { name: 'Availability', href: '/availability', icon: Clock },
-];
-
-const SECONDARY_NAV = [
-
 ];
 
 export function Sidebar() {
@@ -58,22 +49,6 @@ export function Sidebar() {
                             <item.icon size={17} strokeWidth={2.1} />
                             <span>{item.name}</span>
                         </NavLink>
-                    ))}
-                </nav>
-
-                <nav className="mt-3 space-y-1">
-                    {SECONDARY_NAV.map((item) => (
-                        <button
-                            key={item.name}
-                            type="button"
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-medium text-cal-text-muted transition-colors hover:bg-white/5 hover:text-cal-text-primary"
-                        >
-                            <item.icon size={17} strokeWidth={2.1} />
-                            <span className="flex-1 text-left">{item.name}</span>
-                            {(item.name === 'Apps' || item.name === 'Insights') && (
-                                <ChevronDown size={14} className="text-cal-text-dimmed" />
-                            )}
-                        </button>
                     ))}
                 </nav>
 
